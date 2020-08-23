@@ -7,27 +7,14 @@ export class NessApiCdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const bucketName = "testBucket"
-    const bucket = new s3.Bucket(this, bucketName )
-
     const handler = new lambda.Function(this, 'NessAPIFunction', {
       runtime: lambda.Runtime.GO_1_X,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset('./src/ness-function'),
-      environment: {
-        BUCKET: bucketName,
-      }
+      handler: 'main',
+      code: lambda.Code.fromAsset('./src/ness-function/bin'),
     })
 
-    bucket.grantReadWrite(handler)
-
-    const api = new apigateway.RestApi(this, "testGateway", {
-      restApiName: "testAPI",
+    new apigateway.LambdaRestApi(this, "nessAPIGateway", {
+      handler: handler
     })
-    const nessIntegration = new apigateway.LambdaIntegration(handler, {
-      requestTemplates: { "application/json": '{ "statusCode": "200" }' }
-    });
-
-    api.root.addMethod("GET", nessIntegration);
   }
 }
