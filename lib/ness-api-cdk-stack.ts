@@ -10,7 +10,7 @@ export class NessApiCdkStack extends cdk.Stack {
     const handler = new lambda.Function(this, 'NessAPIFunction', {
       runtime: lambda.Runtime.GO_1_X,
       handler: 'main',
-      code: lambda.Code.fromAsset('./src/ness-function/bin'),
+      code: lambda.Code.fromAsset('./appbin/ness-api-function'),
     })
 
     new apigateway.LambdaRestApi(this, "nessAPIGateway", {

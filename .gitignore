@@ -11,4 +11,4 @@ cdk.out
 .cache
 .build
 
-src/ness-function
+appbin
