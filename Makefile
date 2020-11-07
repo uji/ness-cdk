@@ -11,10 +11,15 @@ HAS_DOCKER := $(shell\
 # commands for host with docker command
 ifeq ($(HAS_DOCKER),true)
 init:
+	docker volume create ness-cdk
 	docker-compose build
+
+clean:
+	docker volume remove ness-cdk
 
 up:
 	docker-compose up -d
+	docker-compose exec cdk sh init.sh
 
 down:
 	docker-compose down
