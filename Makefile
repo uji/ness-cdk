@@ -60,6 +60,7 @@ build:
 	cdk synth
 
 deploy:
+	make build
 	cdk bootstrap
 	cdk deploy --require-approval never
 
