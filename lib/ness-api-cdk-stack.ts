@@ -14,33 +14,24 @@ export class NessApiCdkStack extends cdk.Stack {
     const handler = new lambda.Function(this, 'NessAPIFunction', {
       runtime: lambda.Runtime.GO_1_X,
       handler: 'main',
-      code: lambda.Code.fromAsset('./appbin/ness-api-function'),
+      code: lambda.Code.fromAsset('./appbin/ness-api-function.zip'),
       environment: {
-        // "DB_ENDPOINT": process.env.DB_ENDPOINT || "http://localhost:8000",
-        // "FCM_CREDENTIALS_JSON_BASE64": process.env.FCM_CREDENTIALS_JSON_BASE64 || "",
-        "DB_ENDPOINT": "http://localhost:8000",
+        "DB_ENDPOINT": "http://dynamodb:8000",
         "FCM_CREDENTIALS_JSON_BASE64": "",
-        // "AWS_REGION": process.env.AWS_DEFAULT_REGION || "",
-        // "AWS_ACCESS_KEY_ID": "dammy",
-        // "AWS_SECRET_ACCESS_KEY": "dammy",
       }
     })
-    const lambdaIntegration = new apigateway.LambdaIntegration(handler)
 
-    const gateway = new apigateway.RestApi(this, "nessAPIGateway", {
-      restApiName: "nessAPI",
-    })
-    const queryResource = gateway.root.addResource("query", {
+    const api = new apigateway.RestApi(this, 'api', {
       defaultCorsPreflightOptions: {
-        statusCode: 200,
-        allowCredentials: true,
         allowOrigins: ["http://localhost:8080"],
-        allowHeaders: ["*"],
         allowMethods: apigateway.Cors.ALL_METHODS,
+        allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
+        allowCredentials: true,
       },
-      defaultIntegration: lambdaIntegration,
+      restApiName: "ness-api"
     })
-    queryResource.addMethod("post")
+    const integration = new apigateway.LambdaIntegration(handler)
+    api.root.addMethod('POST', integration)
 
     threadTable.grantReadWriteData(handler)
     userTable.grantReadWriteData(handler)
