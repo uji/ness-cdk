@@ -40,17 +40,7 @@ bash:
 	docker-compose exec cdk bash
 
 appbin:
-	rm -rf tmp
-	mkdir tmp
-	curl -s https://api.github.com/repos/uji/ness-api-function/releases/latest \
-	| grep "browser_download_url.*_Linux_x86_64.tar.gz" \
-	| cut -d : -f 2,3 \
-	| tr -d \" \
-	| xargs curl -o tmp/ness-api-function-bin.tar.gz -L
-	tar -zxvf tmp/ness-api-function-bin.tar.gz -C tmp
-	mkdir -p appbin/ness-api-function
-	mv tmp/ness-api-function appbin/ness-api-function
-	rm -rf tmp
+	docker-compose exec make appbin
 endif
 
 # command in docker container
@@ -66,4 +56,13 @@ deploy:
 
 destroy:
 	cdk destroy
+
+appbin:
+	rm -rf appbin
+	mkdir appbin
+	curl -s https://api.github.com/repos/uji/ness-api-function/releases/latest \
+	| grep "browser_download_url.*_Linux_x86_64.zip" \
+	| cut -d : -f 2,3 \
+	| tr -d \" \
+	| xargs curl -o appbin/ness-api-function.zip -L
 endif
