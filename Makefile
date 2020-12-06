@@ -39,6 +39,7 @@ deploy:
 bash:
 	docker-compose exec cdk bash
 
+.PHONY: appbin
 appbin:
 	docker-compose exec make appbin
 endif
@@ -57,6 +58,7 @@ deploy:
 destroy:
 	cdk destroy
 
+.PHONY: appbin
 appbin:
 	rm -rf appbin
 	mkdir appbin

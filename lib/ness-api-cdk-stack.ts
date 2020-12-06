@@ -3,6 +3,7 @@ import * as apigateway from '@aws-cdk/aws-apigateway';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as cdk from '@aws-cdk/core';
 import { AttributeType } from '@aws-cdk/aws-dynamodb';
+import { Cors } from '@aws-cdk/aws-apigateway';
 
 export class NessApiCdkStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -13,25 +14,23 @@ export class NessApiCdkStack extends cdk.Stack {
 
     const handler = new lambda.Function(this, 'NessAPIFunction', {
       runtime: lambda.Runtime.GO_1_X,
-      handler: 'main',
+      handler: 'ness-api-function',
       code: lambda.Code.fromAsset('./appbin/ness-api-function.zip'),
       environment: {
-        "DB_ENDPOINT": "http://dynamodb:8000",
-        "FCM_CREDENTIALS_JSON_BASE64": "",
+        "FCM_CREDENTIALS_JSON_BASE64": process.env.FCM_CREDENTIALS_JSON_BASE64 || '',
       }
     })
 
-    const api = new apigateway.RestApi(this, 'api', {
+    new apigateway.LambdaRestApi(this, 'api', {
+      handler: handler,
+      restApiName: 'ness-api',
       defaultCorsPreflightOptions: {
-        allowOrigins: ["http://localhost:8080"],
-        allowMethods: apigateway.Cors.ALL_METHODS,
-        allowHeaders: apigateway.Cors.DEFAULT_HEADERS,
+        allowOrigins: ['http://localhost:8080'],
+        allowMethods: Cors.ALL_METHODS,
+        allowHeaders: Cors.DEFAULT_HEADERS,
         allowCredentials: true,
-      },
-      restApiName: "ness-api"
+      }
     })
-    const integration = new apigateway.LambdaIntegration(handler)
-    api.root.addMethod('POST', integration)
 
     threadTable.grantReadWriteData(handler)
     userTable.grantReadWriteData(handler)
