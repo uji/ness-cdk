@@ -24,6 +24,11 @@ export class NessApiCdkStack extends cdk.Stack {
     new apigateway.LambdaRestApi(this, 'api', {
       handler: handler,
       restApiName: 'ness-api',
+      defaultMethodOptions: {
+        requestParameters: {
+          'method.request.header.Cookie': false,
+        }
+      },
       defaultCorsPreflightOptions: {
         allowOrigins: ['http://localhost:8080'],
         allowMethods: Cors.ALL_METHODS,
